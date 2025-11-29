@@ -1,36 +1,36 @@
-<!-- Header de la Aplicación -->
 <ion-header>
   <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <!-- Boton menu hamburguesa -->
-      <ion-menu-button></ion-menu-button>
-    </ion-buttons>
-    <ion-title data-test="home-title" class="header">Mesas</ion-title>
+    <ion-buttons slot="start"><ion-menu-button></ion-menu-button></ion-buttons>
+    <ion-title class="header">Inventario – System</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<!-- Contenido de la aplicacion -->
-<ion-content class="home-content" fullscreen>
-
-  <ion-refresher slot="fixed" (ionRefresh)="refrescar($event)">
-    <ion-refresher-content></ion-refresher-content>
-  </ion-refresher>
-
-  <ion-grid>
-    <ion-row>
-      <ion-col size="4" size-sm="3" *ngFor="let mesa of (mesas$ | async); trackBy: mesaId">
-        <div  #mesaCard class="mesa-card" [ngClass]="mesa.estado" [attr.data-id]="mesa.id" (click)="abrirMesa(mesa)">
-          <ion-icon name="restaurant" class="mesa-icon"></ion-icon>
-          <span class="mesa-num">{{ mesa.numero }}</span>
-        </div>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
-
-  <!-- Botón para agregar una nueva mesa -->
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button (click)="agregarMesa()">
-      <ion-icon name="add"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
+<ion-content class="ion-padding">
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Resumen</ion-card-title>
+      <ion-card-subtitle>Estado general</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="6">
+            <ion-item lines="none">
+              <ion-label>Productos</ion-label>
+              <ion-badge color="primary">{{ totalProductos$ | async }}</ion-badge>
+            </ion-item>
+          </ion-col>
+          <ion-col size="6">
+            <ion-item lines="none">
+              <ion-label>Categorías</ion-label>
+              <ion-badge color="tertiary">{{ totalCategorias$ | async }}</ion-badge>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+      <ion-button expand="block" (click)="irProductos()">Gestionar productos</ion-button>
+      <ion-button expand="block" fill="outline" (click)="irCategorias()">Gestionar categorías</ion-button>
+      <ion-button expand="block" fill="clear" (click)="irHistorial()">Historial de stock</ion-button>
+    </ion-card-content>
+  </ion-card>
 </ion-content>

@@ -26,16 +26,6 @@ const routes: Routes = [
     canActivate: [authGuard]
   },
   {
-    path: 'pedido',
-    loadChildren: () => import('./paginas/pedido/pedido.module').then( m => m.PedidoPageModule),
-    canActivate: [authGuard]
-  },
-  {
-    path: 'pago',
-    loadChildren: () => import('./paginas/pago/pago.module').then( m => m.PagoPageModule),
-    canActivate: [authGuard]
-  },
-  {
     path: 'registros',
     loadChildren: () => import('./paginas/registros/registros.module').then( m => m.RegistrosPageModule),
     canActivate: [authGuard]
@@ -49,8 +39,6 @@ const routes: Routes = [
     path: '**',
     loadChildren: () => import('./paginas/error404/error404.module').then( m => m.Error404PageModule)
   },
-
-
 ];
 
 @NgModule({

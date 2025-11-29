@@ -1,69 +1,83 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { BehaviorSubject, Observable, merge, switchMap } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 export interface Producto {
   id: number;
+  codigo: string;
   nombre: string;
-  precio: number;
-  stock?: number;
+  precio: number;           // entero
+  categoria_id: number;
+  stock: number;            // si ilimitado=true lo podemos mostrar como 0 o ∞ en UI
   ilimitado: boolean;
   imagen?: string;
 }
 
 export interface ProductoUpsert {
+  codigo: string;
   nombre: string;
   precio: number;
+  categoria_id: number;
   ilimitado: boolean;
   stock?: number;
   imagen?: string;
 }
 
+export interface StockHistoryRow {
+  id: number;
+  producto_id: number;
+  delta: number;
+  motivo?: string | null;
+  fecha: string; // ISO
+  usuario_id?: number | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ProductoService {
-
-  /**
-   * Aqui vamos a añadir productos de ejemplo
-   * ya que en esta actividad aun no aprendemos
-   * conectar la aplicacion con una base de datos
-   * para el correcto almacenamiento de los productos.
-   */
-  /*private initial: Producto[] = [
-    { id: crypto.randomUUID(), nombre: 'Espresso',     precio: 1800, stock: 50, ilimitado: true },
-    { id: crypto.randomUUID(), nombre: 'Capuccino',    precio: 2200, stock: 35, ilimitado: true },
-    { id: crypto.randomUUID(), nombre: 'Latte',        precio: 2000, stock: 40, ilimitado: true },
-    { id: crypto.randomUUID(), nombre: 'Americano',    precio: 1700, stock: 30, ilimitado: true },
-    { id: crypto.randomUUID(), nombre: 'Sandwich Queso de Cabra, Tomate y Pesto', precio: 3500, stock: 20, ilimitado: false },
-  ];*/
-
   private apiUrl = `${environment.apiUrl}/productos`;
   private reload$ = new BehaviorSubject<void>(undefined);
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
-  obtenerProductos(): Observable<Producto[]> {
+  /** Listado con filtros opcionales (q, categoria_id, paginación) */
+  listar(opts?: { q?: string; categoria_id?: number; page?: number; size?: number }): Observable<Producto[]> {
+    let params = new HttpParams();
+    if (opts?.q) params = params.set('q', opts.q);
+    if (opts?.categoria_id) params = params.set('categoria_id', opts.categoria_id);
+    if (opts?.page) params = params.set('page', opts.page);
+    if (opts?.size) params = params.set('size', opts.size);
+
+    const req$ = this.http.get<Producto[]>(this.apiUrl, { params });
+
     return merge(
-      this.http.get<Producto[]>(this.apiUrl),
-      this.reload$.pipe(
-        switchMap(() => this.http.get<Producto[]>(this.apiUrl))
-      )
+      req$,
+      this.reload$.pipe(switchMap(() => this.http.get<Producto[]>(this.apiUrl, { params })))
     );
   }
 
-  añadirProducto(p: ProductoUpsert): void {
-    this.http.post<Producto>(this.apiUrl, p)
-      .subscribe(() => this.recargar());
+  crear(p: ProductoUpsert): void {
+    this.http.post<Producto>(this.apiUrl, p).subscribe(() => this.recargar());
   }
 
-  actualizarProducto(id: number, cambios: ProductoUpsert): void {
-    this.http.put<Producto>(`${this.apiUrl}/${id}`, cambios)
-      .subscribe(() => this.recargar());
+  actualizar(id: number, cambios: ProductoUpsert): void {
+    this.http.put<Producto>(`${this.apiUrl}/${id}`, cambios).subscribe(() => this.recargar());
   }
 
-  eliminarProducto(id: number): void {
-    this.http.delete<void>(`${this.apiUrl}/${id}`)
-      .subscribe(() => this.recargar());
+  eliminar(id: number): void {
+    this.http.delete<void>(`${this.apiUrl}/${id}`).subscribe(() => this.recargar());
+  }
+
+  /** Ajuste de stock (positivo o negativo) */
+  ajustarStock(producto_id: number, delta: number, motivo?: string) {
+    return this.http.post<{ ok: true }>(`${environment.apiUrl}/stock/adjust`, {
+      producto_id, delta, motivo
+    });
+  }
+
+  /** Historial por producto */
+  historial(producto_id: number) {
+    return this.http.get<StockHistoryRow[]>(`${environment.apiUrl}/productos/${producto_id}/historial`);
   }
 
   private recargar(): void {

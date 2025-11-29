@@ -1,43 +1,47 @@
-<!-- Header de la Aplicación -->
 <ion-header>
   <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <!-- Botón hamburguesa -->
-      <ion-menu-button></ion-menu-button>
-    </ion-buttons>
-    <ion-title data-test="productos-title" class="header">Productos</ion-title>
+    <ion-buttons slot="start"><ion-menu-button></ion-menu-button></ion-buttons>
+    <ion-title class="header">Productos</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<!-- Contenido de la aplicacion -->
 <ion-content class="products-content ion-padding" fullscreen>
+
+  <!-- Filtros -->
+  <form [formGroup]="filtroForm" class="ion-padding">
+    <ion-item>
+      <ion-input placeholder="Buscar (código/nombre)" formControlName="q"></ion-input>
+    </ion-item>
+  
+    <ion-item>
+      <ion-select interface="popover" placeholder="Categoría" formControlName="categoria_id">
+        <ion-select-option [value]="null">Todas</ion-select-option>
+        <ion-select-option *ngFor="let c of (categorias$ | async)" [value]="c.id">
+          {{ c.nombre }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+  </form>
+
   <ion-list lines="none">
     <ion-item-sliding *ngFor="let p of (productos$ | async)">
       <ion-item detail="false">
-        <ion-thumbnail slot="start" *ngIf="p.imagen">
-          <img [src]="p.imagen" />
-        </ion-thumbnail>
-
+        <ion-thumbnail slot="start" *ngIf="p.imagen"><img [src]="p.imagen" /></ion-thumbnail>
         <ion-label>
-          <h2 class="name">{{ p.nombre }}</h2>
+          <h2 class="name">
+            {{ p.nombre }} <ion-note>({{ p.codigo }})</ion-note>
+          </h2>
           <p class="price">Precio: ${{ p.precio | number:'1.0-0' }}</p>
           <p class="stock">
             Stock:
-            <ng-container *ngIf="!p.ilimitado; else inf"> {{ p.stock }} </ng-container>
+            <ng-container *ngIf="!p.ilimitado; else inf">{{ p.stock }}</ng-container>
             <ng-template #inf>∞</ng-template>
           </p>
         </ion-label>
-
-        <ion-button *ngIf="mesaId" slot="end" fill="clear" size="default" (click)="onSelect(p); $event.stopPropagation();">
-          <ion-icon name="add-circle"></ion-icon>
-        </ion-button>
-
-        <!-- botón editar -->
         <ion-button slot="end" fill="clear" (click)="editar(p)">
           <ion-icon name="create-outline"></ion-icon>
         </ion-button>
       </ion-item>
-
       <ion-item-options side="end">
         <ion-item-option color="danger" (click)="eliminar(p)">
           <ion-icon slot="icon-only" name="trash"></ion-icon>
@@ -46,15 +50,7 @@
     </ion-item-sliding>
   </ion-list>
 
-  <!-- Boton para agregar un nuevo producto -->
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
     <ion-fab-button (click)="agregar()"><ion-icon name="add"></ion-icon></ion-fab-button>
-  </ion-fab>
-
-  <!-- Boton para volver a el menu de la mesa -->
-  <ion-fab *ngIf="mesaId" vertical="bottom" horizontal="start" slot="fixed">
-    <ion-fab-button data-test="volver-mesa" color="medium" (click)="volverAMesa()">
-      <ion-icon name="return-down-back"></ion-icon>
-    </ion-fab-button>
   </ion-fab>
 </ion-content>

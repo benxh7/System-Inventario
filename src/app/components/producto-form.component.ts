@@ -1,9 +1,12 @@
 import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { IonicModule, ModalController, ToastController, Platform  } from '@ionic/angular';
+import {
+  FormsModule, ReactiveFormsModule, FormBuilder, Validators, AbstractControl, ValidationErrors
+} from '@angular/forms';
+import { IonicModule, ModalController, ToastController, Platform } from '@ionic/angular';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Producto, ProductoService } from '../services/producto.service';
+import { CategoriaService } from '../services/categoria.service';
 
 @Component({
   selector: 'app-producto-form',
@@ -21,27 +24,64 @@ import { Producto, ProductoService } from '../services/producto.service';
 
     <ion-content class="ion-padding">
       <form [formGroup]="form" (ngSubmit)="save()">
+
+        <!-- Código (A123) -->
+        <ion-item>
+          <ion-label position="stacked">Código (A123)</ion-label>
+          <ion-input
+            formControlName="codigo"
+            (ionInput)="toUpper($event)">
+          </ion-input>
+        </ion-item>
+        <ion-note color="danger" *ngIf="fc('codigo')?.invalid && fc('codigo')?.touched">
+          Formato inválido. Use una letra mayúscula + 3 dígitos, p.ej. A123.
+        </ion-note>
+
+        <!-- Nombre -->
         <ion-item>
           <ion-label position="stacked">Nombre</ion-label>
           <ion-input formControlName="nombre"></ion-input>
         </ion-item>
+        <ion-note color="danger" *ngIf="form.hasError('codigoNombreIguales') && fc('nombre')?.touched">
+          El código y el nombre no pueden ser iguales.
+        </ion-note>
 
+        <!-- Categoría -->
         <ion-item>
-            <ion-label position="stacked">Precio (CLP)</ion-label>
-            <ion-input type="number" formControlName="precio"></ion-input>
+          <ion-label position="stacked">Categoría</ion-label>
+          <ion-select interface="popover" formControlName="categoria_id" placeholder="Selecciona...">
+            <ion-select-option *ngFor="let c of categorias" [value]="c.id">{{ c.nombre }}</ion-select-option>
+          </ion-select>
+        </ion-item>
+        <ion-note color="danger" *ngIf="fc('categoria_id')?.invalid && fc('categoria_id')?.touched">
+          La categoría es obligatoria.
+        </ion-note>
+
+        <!-- Precio entero -->
+        <ion-item>
+          <ion-label position="stacked">Precio (CLP)</ion-label>
+          <ion-input type="number" inputmode="numeric" formControlName="precio"></ion-input>
+        </ion-item>
+        <ion-note color="danger" *ngIf="fc('precio')?.invalid && fc('precio')?.touched">
+          Ingrese un entero mayor o igual a 0.
+        </ion-note>
+
+        <!-- Ilimitado -->
+        <ion-item>
+          <ion-label>Stock ilimitado</ion-label>
+          <ion-toggle formControlName="ilimitado"></ion-toggle>
         </ion-item>
 
-        <ion-item>
-            <ion-label>Stock ilimitado</ion-label>
-            <ion-toggle formControlName="ilimitado"></ion-toggle>
-        </ion-item>
-
+        <!-- Stock -->
         <ion-item *ngIf="!form.value.ilimitado">
-        <ion-label position="stacked">Stock</ion-label>
-        <ion-input type="number" formControlName="stock"></ion-input>
+          <ion-label position="stacked">Stock</ion-label>
+          <ion-input type="number" inputmode="numeric" formControlName="stock"></ion-input>
         </ion-item>
+        <ion-note color="danger" *ngIf="!form.value.ilimitado && fc('stock')?.invalid && fc('stock')?.touched">
+          El stock debe ser ≥ 0.
+        </ion-note>
 
-        <!-- Selector de imagen -->
+        <!-- Imagen -->
         <ion-item>
           <ion-label>Imagen</ion-label>
           <ion-button fill="outline" (click)="selectImage()">
@@ -71,31 +111,57 @@ export class ProductoFormComponent {
   private toast = inject(ToastController);
   private prodSrv = inject(ProductoService);
   private platform = inject(Platform);
+  private catSrv = inject(CategoriaService);
 
   @Input() producto?: Producto;
 
+  categorias: Array<{id:number; nombre:string}> = [];
+
   form = this.fb.group({
+    codigo: ['', [Validators.required, Validators.pattern(/^[A-Z][0-9]{3}$/)]],
     nombre: ['', Validators.required],
-    precio: [0, [Validators.required, Validators.min(1)]],
+    categoria_id: [null as number | null, Validators.required],
+    precio: [0, [Validators.required, Validators.pattern(/^\d+$/)]], // entero
     ilimitado: [false],
-    stock: [0, Validators.min(0)],
+    stock: [0, [Validators.min(0)]],
     imagen: ['']
-  });
+  }, { validators: this.codigoDistintoDeNombre });
 
   ngOnInit() {
+    // Cargar categorías
+    this.catSrv.listar().subscribe(c => this.categorias = c);
+
+    // Editar
     if (this.producto) {
-      this.form.patchValue(this.producto);
+      // si viene ilimitado true, forzamos stock a 0 en el form
+      const { ilimitado, stock, ...rest } = this.producto as any;
+      this.form.patchValue({
+        ...rest,
+        ilimitado,
+        stock: ilimitado ? 0 : (stock ?? 0)
+      });
     }
   }
 
-  close() {
-    this.modal.dismiss();
+  fc(name: string) { return this.form.get(name); }
+
+  close() { this.modal.dismiss(); }
+
+  toUpper(ev: any) {
+    const v = (ev.target?.value ?? '').toString().toUpperCase();
+    this.form.patchValue({ codigo: v }, { emitEvent: false });
+  }
+
+  /** Código y nombre no pueden ser iguales (ignorando mayúsculas/minúsculas) */
+  private codigoDistintoDeNombre(group: AbstractControl): ValidationErrors | null {
+    const codigo = (group.get('codigo')?.value ?? '').toString().trim().toLowerCase();
+    const nombre = (group.get('nombre')?.value ?? '').toString().trim().toLowerCase();
+    return codigo && nombre && codigo === nombre ? { codigoNombreIguales: true } : null;
   }
 
   /** Abre cámara o file picker según la plataforma */
   async selectImage() {
     if (this.platform.is('hybrid')) {
-      // En móvil: cámara / galería
       try {
         const image = await Camera.getPhoto({
           quality: 90,
@@ -107,9 +173,7 @@ export class ProductoFormComponent {
       } catch (err) {
         console.warn('No se seleccionó imagen', err);
       }
-  
     } else {
-      // En web: creamos y disparamos un input file
       const input = document.createElement('input');
       input.type = 'file';
       input.accept = 'image/*';
@@ -133,31 +197,28 @@ export class ProductoFormComponent {
     });
   }
 
-  /**
-   * Esta funcion se encarga de guardar los cambios
-   * que se hayan realizado en el formulario, ya sea
-   * para crear un nuevo producto o para editar uno existente.
-   */
+  /** Crear / Editar */
   async save() {
-    const { nombre, precio, stock, ilimitado, imagen } = this.form.value as any;
-
+    const { codigo, nombre, precio, stock, ilimitado, imagen, categoria_id } = this.form.value as any;
+  
+    const payload = {
+      codigo,
+      nombre,
+      precio: Number(precio),
+      ilimitado: !!ilimitado,
+      stock: ilimitado ? 0 : Number(stock ?? 0),
+      imagen,
+      categoria_id: Number(categoria_id)
+    };
+  
     if (this.producto) {
-      await this.prodSrv.actualizarProducto(
-        this.producto.id,
-        { nombre, precio, ilimitado, stock: ilimitado ? undefined : stock, imagen }
-      );
+      this.prodSrv.actualizar(this.producto.id, payload);
     } else {
-      await this.prodSrv.añadirProducto({
-        nombre,
-        precio,
-        ilimitado,
-        ...(ilimitado ? {} : { stock }),
-        imagen
-      });
+      this.prodSrv.crear(payload);
     }
-
+  
     const t = await this.toast.create({ message: 'Guardado', duration: 1200 });
     await t.present();
-    this.modal.dismiss();
+    this.modal.dismiss(true);
   }
 }

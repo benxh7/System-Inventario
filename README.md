@@ -2,9 +2,9 @@
 
 <div align="center">
 
-## Aplicacion Mobil Table Master
+## Aplicación System Inventario
 
-Table Master es una aplicación híbrida desarrollada con Ionic y Angular que simplifica la gestión de mesas, pedidos y propinas a los usuarios. Esto ayuda a los emprendimientos gastronomicos como: Cafeterias, Comedores, Buffets y Food-trucks. Esta facilita a los empleados el poder tener un conteo de mesas con clientes, productos, propinas y registros de pagos en el dia.
+System Inventario es una aplicación híbrida desarrollada con Ionic y Angular que simplifica la gestión de registros, productos y inventarios. Esta aplicación esta dirigida a la empresa "System"
 
 </div>
 
