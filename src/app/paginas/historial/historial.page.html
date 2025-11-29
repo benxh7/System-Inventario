@@ -1,0 +1,88 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start"><ion-menu-button></ion-menu-button></ion-buttons>
+    <ion-title class="header">Historial de Stock</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" fullscreen>
+  <form [formGroup]="filtroForm" class="ion-margin-bottom">
+    <ion-item>
+      <ion-label position="stacked">Categoría</ion-label>
+      <ion-select interface="popover" formControlName="categoria_id">
+        <ion-select-option [value]="0">Todas</ion-select-option>
+        <ion-select-option *ngFor="let c of (categorias$ | async)" [value]="c.id">
+          {{ c.nombre }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Producto</ion-label>
+      <ion-select interface="popover" formControlName="producto_id" placeholder="Selecciona...">
+        <ion-select-option *ngFor="let p of (productos$ | async)" [value]="p.id">
+          {{ p.nombre }} ({{p.codigo}})
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Buscar por motivo</ion-label>
+      <ion-input formControlName="q" placeholder="Compra, rotura, inventario..."></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Desde</ion-label>
+      <ion-input type="date" formControlName="desde"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Hasta</ion-label>
+      <ion-input type="date" formControlName="hasta"></ion-input>
+    </ion-item>
+
+    <ion-button fill="clear" size="small" (click)="limpiarFiltros()">
+      Limpiar filtros
+    </ion-button>
+  </form>
+
+  <!-- Resumen del producto -->
+  <ion-card *ngIf="seleccionado">
+    <ion-card-header>
+      <ion-card-title>{{ seleccionado.nombre }} <ion-note>({{seleccionado.codigo}})</ion-note></ion-card-title>
+      <ion-card-subtitle>Categoria ID: {{ seleccionado.categoria_id }}</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <p *ngIf="seleccionado.ilimitado; else stockTpl">Stock: ∞</p>
+      <ng-template #stockTpl><p>Stock: {{ seleccionado.stock }}</p></ng-template>
+
+      <ion-button expand="block" (click)="abrirAjuste()" [disabled]="seleccionado.ilimitado">
+        Ajustar stock
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Lista de movimientos -->
+  <ion-list *ngIf="(historial$ | async) as hist; else selProdPrimero" lines="full">
+    <ion-item *ngIf="hist.length === 0">
+      <ion-label>No hay movimientos para los filtros actuales.</ion-label>
+    </ion-item>
+
+    <ion-item *ngFor="let r of hist">
+      <ion-icon [name]="r.delta >= 0 ? 'add-circle-outline' : 'remove-circle-outline'" slot="start"></ion-icon>
+      <ion-label>
+        <h2>
+          <b>{{ r.delta >= 0 ? '+' : ''}}{{ r.delta }}</b>
+          <ion-note *ngIf="r.motivo">· {{ r.motivo }}</ion-note>
+        </h2>
+        <p>{{ r.fecha | date:'dd/MM/yyyy HH:mm' }}</p>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+
+  <ng-template #selProdPrimero>
+    <ion-item>
+      <ion-label>Selecciona un producto para ver su historial.</ion-label>
+    </ion-item>
+  </ng-template>
+</ion-content>

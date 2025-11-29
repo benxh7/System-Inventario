@@ -1,0 +1,37 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start"><ion-menu-button></ion-menu-button></ion-buttons>
+    <ion-title class="header">Categorías</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" fullscreen>
+  <form [formGroup]="filtroForm">
+    <ion-item>
+      <ion-input placeholder="Buscar categoría..." formControlName="q"></ion-input>
+    </ion-item>
+  </form>
+
+  <ion-list lines="full">
+    <ion-item-sliding *ngFor="let c of (categorias$ | async)">
+      <ion-item>
+        <ion-icon name="pricetags-outline" slot="start"></ion-icon>
+        <ion-label>{{ c.nombre }}</ion-label>
+        <ion-button slot="end" fill="clear" (click)="editar(c)">
+          <ion-icon name="create-outline"></ion-icon>
+        </ion-button>
+      </ion-item>
+      <ion-item-options side="end">
+        <ion-item-option color="danger" (click)="eliminar(c)">
+          <ion-icon slot="icon-only" name="trash"></ion-icon>
+        </ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
+  </ion-list>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button (click)="agregar()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

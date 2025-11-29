@@ -7,19 +7,16 @@
 /* ---------- CONTENIDO DE LA APLICACION ---------- */
 
 .products-content ion-item {
-    --background: #ffffff !important;
     border-radius: 12px;
     margin-bottom: 16px;
     padding: 6px;
 }
 
 .products-content ion-item::part(native) {
-    --background: #ffffff !important;
     border-radius: 8px;
 }
 
 .products-content ion-list {
-    background: #c9c9c9 !important;
     border-radius: 12px;
     padding-bottom: 1px;
     padding: 6px;
@@ -40,20 +37,20 @@
 }
 
 .products-content ion-item ion-label h2 {
-    color: #252525 !important;
+    color: #ffffff !important;
     font-size: 0.9rem;
     font-weight: 700;
 }
 
 /* 2) Precio (primer <p>) */
 .products-content ion-item ion-label p:first-of-type {
-    color: #252525 !important;
+    color: #ffffff !important;
     font-weight: 500;
 }
 
 /* 3) Stock (segundo <p>) */
 .products-content ion-item ion-label p:nth-of-type(2) {
-    color: #252525 !important;
+    color: #ffffff !important;
     font-weight: 500;
 }
 
