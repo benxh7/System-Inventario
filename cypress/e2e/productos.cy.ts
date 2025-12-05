@@ -6,7 +6,7 @@ describe('TableMaster – Productos', () => {
     const productos = new ProductosPage();
 
     before(() => {
-        login.login('e2e@tablemaster.com', 'Pass1234');
+        login.login('benja@gmail.com', '123456');
         productos.navigate();
     });
 

@@ -1,13 +1,13 @@
 import { LoginPage } from '../support/pages/login.page';
 import { HomePage } from '../support/pages/home.page';
 
-describe('TableMaster – Home', () => {
-    const login = new LoginPage();
-    const home = new HomePage();
+describe('System-Inventario – Home', () => {
+  const login = new LoginPage();
+  const home = new HomePage();
 
-    before(() => login.login('e2e@tablemaster.com', 'Pass1234'));
+  before(() => login.login('benja@gmail.com', '123456'));
 
-    it('La pagina carga correctamente', () => {
-        home.getTitle().should('equal', 'Mesas');
-    });
+  it('La pagina carga correctamente', () => {
+    home.getTitle().should('contain', 'Inventario – System');
+  });
 });

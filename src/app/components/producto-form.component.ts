@@ -49,8 +49,15 @@ import { CategoriaService } from '../services/categoria.service';
         <!-- Categoría -->
         <ion-item>
           <ion-label position="stacked">Categoría</ion-label>
-          <ion-select interface="popover" formControlName="categoria_id" placeholder="Selecciona...">
-            <ion-select-option *ngFor="let c of categorias" [value]="c.id">{{ c.nombre }}</ion-select-option>
+          <ion-select
+            interface="popover"
+            formControlName="categoria_id"
+            placeholder="Selecciona..."
+            data-test="modal-select-categoria"
+          >
+            <ion-select-option *ngFor="let c of categorias" [value]="c.id">
+              {{ c.nombre }}
+            </ion-select-option>
           </ion-select>
         </ion-item>
         <ion-note color="danger" *ngIf="fc('categoria_id')?.invalid && fc('categoria_id')?.touched">
@@ -97,7 +104,7 @@ import { CategoriaService } from '../services/categoria.service';
           <ion-label>Previsualización</ion-label>
         </ion-item>
 
-        <ion-button expand="block" type="submit" [disabled]="form.invalid">
+        <ion-button expand="block" type="submit" [disabled]="form.invalid" data-test="btn-guardar-producto">
           {{ producto ? 'Guardar cambios' : 'Crear producto' }}
         </ion-button>
       </form>

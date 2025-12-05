@@ -27,29 +27,17 @@
 //
 
 import { LoginPage } from './pages/login.page';
-import { HomePage }  from './pages/home.page';
-import { MesaDetalleSheet } from './pages/mesa-detalle.sheet';
 
 declare global {
   namespace Cypress {
     interface Chainable {
       login(email: string, pwd: string): Chainable<void>;
-      abrirMesa(num?: number): Chainable<void>;
-      agregarProductos(): Chainable<void>;
     }
   }
 }
 
 Cypress.Commands.add('login', (email: string, pwd: string) => {
   new LoginPage().login(email, pwd);
-});
-
-Cypress.Commands.add('abrirMesa', (num = 2) => {
-  new HomePage().abrirMesa(num);
-});
-
-Cypress.Commands.add('agregarProductos', () => {
-  new MesaDetalleSheet().agregarProductos();
 });
 
 export {};

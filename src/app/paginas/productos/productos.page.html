@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar color="primary">
     <ion-buttons slot="start"><ion-menu-button></ion-menu-button></ion-buttons>
-    <ion-title class="header">Productos</ion-title>
+    <ion-title class="header" data-test="productos-title">Productos</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -10,11 +10,20 @@
   <!-- Filtros -->
   <form [formGroup]="filtroForm" class="ion-padding">
     <ion-item>
-      <ion-input placeholder="Buscar (código/nombre)" formControlName="q"></ion-input>
+      <ion-input
+        placeholder="Buscar (código/nombre)"
+        formControlName="q"
+        data-test="buscar-producto"
+      ></ion-input>
     </ion-item>
   
     <ion-item>
-      <ion-select interface="popover" placeholder="Categoría" formControlName="categoria_id">
+      <ion-select
+        interface="popover"
+        placeholder="Categoría"
+        formControlName="categoria_id"
+        data-test="select-categoria"
+      >
         <ion-select-option [value]="null">Todas</ion-select-option>
         <ion-select-option *ngFor="let c of (categorias$ | async)" [value]="c.id">
           {{ c.nombre }}
@@ -24,7 +33,7 @@
   </form>
 
   <ion-list lines="none">
-    <ion-item-sliding *ngFor="let p of (productos$ | async)">
+    <ion-item-sliding *ngFor="let p of (productos$ | async)" data-test="fila-producto">
       <ion-item detail="false">
         <ion-thumbnail slot="start" *ngIf="p.imagen"><img [src]="p.imagen" /></ion-thumbnail>
         <ion-label>
@@ -32,18 +41,27 @@
             {{ p.nombre }} <ion-note>({{ p.codigo }})</ion-note>
           </h2>
           <p class="price">Precio: ${{ p.precio | number:'1.0-0' }}</p>
-          <p class="stock">
+          <p class="stock" data-test="producto-stock">
             Stock:
             <ng-container *ngIf="!p.ilimitado; else inf">{{ p.stock }}</ng-container>
             <ng-template #inf>∞</ng-template>
           </p>
         </ion-label>
-        <ion-button slot="end" fill="clear" (click)="editar(p)">
+        <ion-button
+          slot="end"
+          fill="clear"
+          (click)="editar(p)"
+          data-test="btn-editar-producto"
+        >
           <ion-icon name="create-outline"></ion-icon>
         </ion-button>
       </ion-item>
       <ion-item-options side="end">
-        <ion-item-option color="danger" (click)="eliminar(p)">
+        <ion-item-option
+          color="danger"
+          (click)="eliminar(p)"
+          data-test="btn-eliminar-producto"
+        >
           <ion-icon slot="icon-only" name="trash"></ion-icon>
         </ion-item-option>
       </ion-item-options>
@@ -51,6 +69,8 @@
   </ion-list>
 
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button (click)="agregar()"><ion-icon name="add"></ion-icon></ion-fab-button>
+    <ion-fab-button (click)="agregar()" data-test="btn-nuevo-producto">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
   </ion-fab>
 </ion-content>

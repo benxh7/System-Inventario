@@ -36,16 +36,6 @@ const routes: Routes = [
     canActivate: [authGuard]
   },
   {
-    path: 'registros',
-    loadChildren: () => import('./paginas/registros/registros.module').then( m => m.RegistrosPageModule),
-    canActivate: [authGuard]
-  },
-  {
-    path: 'registro-detalle',
-    loadChildren: () => import('./paginas/registros/registro-detalle/registro-detalle.module').then( m => m.RegistroDetallePageModule),
-    canActivate: [authGuard]
-  },
-  {
     path: '**',
     loadChildren: () => import('./paginas/error404/error404.module').then( m => m.Error404PageModule)
   },

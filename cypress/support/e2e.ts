@@ -15,3 +15,12 @@
 
 // Import commands.js using ES2015 syntax:
 import './commands'
+
+Cypress.on('uncaught:exception', (err) => {
+    if (err.message && err.message.includes('elm[aelFn] is not a function')) {
+        // Ignoramos este error específico de Ionic
+        return false;
+    }
+    // Otros errores sí deben fallar el test
+    return true;
+});
