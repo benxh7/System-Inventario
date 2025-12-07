@@ -7,7 +7,7 @@ describe('System-Inventario – Gestión de Productos', () => {
 
   const baseProducto: ProductoData = {
     codigo: 'A001',
-    nombre: 'Azúcar 1kg',
+    nombre: 'Azucar 1kg',
     categoria: 'Alimentos',   // ← debe coincidir EXACTO con lo que se ve en el menú
     precio: 1500,
   };

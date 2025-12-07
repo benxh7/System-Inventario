@@ -2,13 +2,13 @@
 // http://ionicframework.com/docs/theming/
 :root {
     /* Backgrounds */
-    --app-bg: #131313;
-    --card-bg: #cfcfcf;
+    --app-bg: #00314b;
+    --card-bg: #f5f1eb;
   
     /* Ionic palette */
-    --ion-color-primary: #0066ff;
+    --ion-color-primary: #a6b7cb;
     --ion-color-primary-rgb: 0,102,255;
-    --ion-color-primary-contrast: #ffffff;
+    --ion-color-primary-contrast: #00314b;
     --ion-color-primary-contrast-rgb: 255,255,255;
   
     --ion-color-success: #3fc978;
@@ -16,9 +16,9 @@
     --ion-color-warning: #ffe17d;
   
     /* Text */
-    --text-main:#000000;
-    --text-sub:#8C9EFF;
+    --text-main:#00314b;
+    --text-sub:#f5f1eb;
   
     /* Accent */
-    --accent:#2d8fff;
+    --accent:#b8a78c;
 }

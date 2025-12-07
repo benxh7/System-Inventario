@@ -95,29 +95,19 @@ export interface ProductoData {
             .clear()
             .type(data.nombre);
     
-          // Abrimos el select de categoría del FORMULARIO del modal
-          cy.get('ion-select[formControlName="categoria_id"]')
-            .click({ force: true });
-        });
-    
-      // 2) Seleccionamos la opción "Alimentos" (o la que venga en data.categoria)
-      cy.get('ion-alert, ion-popover', {
-          includeShadowDom: true,
-          timeout: 10000,
-        })
-        .contains(new RegExp(`^\\s*${data.categoria}\\s*$`, 'i'))
-        .click({ force: true });
-    
-      // 3) Precio y guardar, otra vez scoped al modal
-      cy.get('ion-modal', { timeout: 10000 })
-        .should('be.visible')
-        .within(() => {
-          cy.get('ion-input[formControlName="precio"] input')
-            .click()
-            .type('{selectAll}{backspace}' + String(data.precio));
-    
-          cy.get('[data-test="btn-guardar-producto"]')
+                  // Categoría (nuevo sistema con chips)
+          cy.get('[data-test="chip-categoria"]')
+            .contains(data.categoria)
             .click();
+                // Precio
+          cy.get('ion-input[formcontrolname="precio"] input').clear().type(String(data.precio));
+
+          // Guardar
+          cy.get('[data-test="btn-guardar-producto"]').click();
+
+          // Espera a que el modal cierre
+          cy.wait(500);
+
         });
     }    
   
@@ -126,10 +116,18 @@ export interface ProductoData {
     }
   
     editarNombreProducto(nombreActual: string, nuevoNombre: string) {
-      this.btnEditar(nombreActual).click();
-      this.inputNombre().clear().type(nuevoNombre);
-      this.btnGuardar().click();
+      cy.contains('[data-test="fila-producto"]', nombreActual)
+        .find('[data-test="btn-editar-producto"]')
+        .click();
+
+      cy.get('ion-input[formcontrolname="nombre"] input')
+        .clear()
+        .type(nuevoNombre);
+
+      cy.get('[data-test="btn-guardar-producto"]').click();
+      cy.wait(500);
     }
+
   
     eliminarProducto(nombre: string) {
       this.btnEliminar(nombre).click();

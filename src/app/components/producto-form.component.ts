@@ -47,19 +47,25 @@ import { CategoriaService } from '../services/categoria.service';
         </ion-note>
 
         <!-- Categoría -->
-        <ion-item>
-          <ion-label position="stacked">Categoría</ion-label>
-          <ion-select
-            interface="popover"
-            formControlName="categoria_id"
-            placeholder="Selecciona..."
-            data-test="modal-select-categoria"
-          >
-            <ion-select-option *ngFor="let c of categorias" [value]="c.id">
-              {{ c.nombre }}
-            </ion-select-option>
-          </ion-select>
-        </ion-item>
+        <ion-item lines="none">
+  <ion-label position="stacked">Categoría</ion-label>
+
+  <div class="categoria-chips">
+    <ion-chip
+      *ngFor="let c of categorias"
+      (click)="seleccionarCategoria(c.id)"
+      [color]="form.value.categoria_id === c.id ? 'primary' : 'medium'"
+      data-test="chip-categoria"
+    >
+      {{ c.nombre }}
+    </ion-chip>
+  </div>
+</ion-item>
+
+<ion-note color="danger" *ngIf="fc('categoria_id')?.invalid && fc('categoria_id')?.touched">
+  La categoría es obligatoria.
+</ion-note>
+
         <ion-note color="danger" *ngIf="fc('categoria_id')?.invalid && fc('categoria_id')?.touched">
           La categoría es obligatoria.
         </ion-note>
@@ -110,6 +116,7 @@ import { CategoriaService } from '../services/categoria.service';
       </form>
     </ion-content>
   `,
+  styleUrls: ['./producto-form.component.scss'],
 })
 export class ProductoFormComponent {
 
@@ -227,5 +234,8 @@ export class ProductoFormComponent {
     const t = await this.toast.create({ message: 'Guardado', duration: 1200 });
     await t.present();
     this.modal.dismiss(true);
+  }
+    seleccionarCategoria(id: number) {
+    this.form.patchValue({ categoria_id: id });
   }
 }

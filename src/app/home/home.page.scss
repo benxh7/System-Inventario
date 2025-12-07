@@ -10,7 +10,7 @@
 .dashboard-card {
   border-radius: 16px;
   box-shadow: 0 16px 32px rgba(0, 0, 0, 0.35);
-  background: #1b1b1b;
+  background: #f5f1eb;
 }
 
 /* Centrar título y subtítulo del dashboard */
@@ -21,6 +21,12 @@
 .dashboard-card ion-card-subtitle {
   display: block;
   margin-bottom: 0.25rem;
+  color: var(--ion-color-primary);
+}
+.dashboard-card ion-card-title {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--text-main);
 }
 
 /* Fila de estadísticas */
@@ -28,16 +34,17 @@
   display: flex;
   gap: 1rem;
   margin: 1.5rem 0 2rem;
+  color: var(--text-main)
 }
 
 /* Tarjeta individual de métrica */
 .stat-card {
   flex: 1;
-  background: #121212;
+  background: var(--ion-color-primary);
   border-radius: 15px;
   padding: 1rem 1.25rem 1.25rem;
   text-align: center;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  
 }
 
 .stat-label {
@@ -51,18 +58,16 @@
   font-weight: 600;
   letter-spacing: 0.04em;
   border-radius: 16px;
-  padding: 0.75rem 0;
-  border: 1px solid var(--ion-color-primary);
-  box-shadow: 0 0 0 1px rgba(0, 123, 255, 0.25);
+  padding: 0.75rem 0; 
+  
 }
 
 /* Botones */
 .action-btn {
-  margin-top: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-}
-
-.action-btn.clear {
-  --color: var(--ion-color-primary);
+  --background: var(--accent);
+  --color: #fff;
+  --border-radius: 18px;
+  font-weight: 700;
+  margin-top: 12px;
+  letter-spacing: 0.5px;  
 }

@@ -1,116 +1,108 @@
-/* ---------- HEADER DE LA APLICACION ---------- */
-
+/* ---------- HEADER ---------- */
 .header {
-    text-align: center;
+  text-align: center;
+  font-size: 20px;
 }
 
-/* ---------- CONTENIDO DE LA APLICACION ---------- */
-
+/* ---------- CONTENIDO ---------- */
 .login-content {
-    --background: var(--app-bg);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 0 16px;
+  --background: var(--app-bg);
+  display: flex;
+  justify-content: flex-start;   
+  align-items: center;
+  padding: 16px;
+  height: 100%;
 }
 
+/* Contenedor principal */
 .login-wrapper {
-    position: absolute;
-    top: 50%;
-    left: 47%;
-    transform: translate(-50%, -50%);
-    width: 100%;
-    max-width: 340px;
-    padding: 0 5px;
+  width: 100%;
+  max-width: 340px;
+  margin-left: 5%;                
 }
 
-/* ---------- CUERPO DE LA APLICACION ---------- */
-
+/* ---------- TITULOS ---------- */
 .login-header {
-    text-align: center;
-    margin-bottom: 50px;
-
-    h1 {
-        margin-top: 50px;
-        font-size: 2rem;
-        font-weight: bold;
-        color: var(--text-main);
-    }
-
-    h2 {
-        font-size: 1.0rem;
-        font-weight: bold;
-        color: var(--text-sub);
-    }
+  text-align: left;
+  margin-bottom: 20px;
 }
 
-/* ---------- CARTA DE DATOS QUE INGRESA EL USUARIO ---------- */
+.login-header h1 {
+  margin-top: 8px;
+  font-size: 3rem;
+  font-weight: bold;
+  color: var(--accent);
+}
 
+.login-header h2 {
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: var(--text-sub);
+}
+
+/* ---------- TARJETA FORMULARIO ---------- */
 .login-card {
-    width: 100%;
-    max-width: 340px;
-    border-radius: 12px;
-    background-color: var(--card-bg);
-    box-shadow: 0 4px 12px var(--shadow-color);
-
-    h3 {
-        font-size: 1.5rem;
-        text-align: center;
-        color: var(--text-main);
-    }
-
-
-    form {
-        padding: 24px 16px;
-
-        .text-label {
-            color: var(--text-main);
-            margin-bottom: 8px;
-        }
-    }
+  width: 100%;
+  max-width: 340px;
+  border-radius: 12px;
+  background-color: var(--card-bg);
+  box-shadow: 0 4px 12px var(--shadow-color);
+  padding-bottom: 4px;
+  margin-left: 0;                
 }
 
-/* Inputs con linea completa y espacio entre ellos */
+.login-card h3 {
+  font-size: 1.5rem;
+  text-align: left;              
+  color: var(--text-main);
+  margin: 16px 0 0 16px;         
+}
+
+.login-card form {
+  padding: 20px 16px;
+}
+
+/* ---------- INPUTS ---------- */
 ion-item {
-    --background: transparent;
-    margin-bottom: 20px;
-    --color: var(--text-main);
-    --placeholder-color: var(--text-sub);
-}
-
-ion-input {
-    color: var(--text-main);
+  --background: transparent;
+  margin-bottom: 18px;
+  --color: var(--text-main);
+  --placeholder-color: var(--text-sub);
 }
 
 ion-label {
-    color: var(--text-sub);
+  color: var(--text-sub);
 }
 
-/* Boton de ingresar */
+ion-input {
+  color: var(--text-main);
+}
+
+/* ---------- BOTÓN ---------- */
 ion-button {
-    --background: var(--accent);
-    --color: var(--card-bg);
-    --border-radius: 24px;
-    font-weight: 600;
-    margin-top: 8px;
+  --background: var(--accent);
+  --color: var(--card-bg);
+  --border-radius: 24px;
+  font-weight: 600;
+  width: 100%;
 }
 
-/* Futuro link para registrarse */
+/* ---------- LINK REGISTRO ---------- */
 .register-link {
-    margin-top: 16px;
-    text-align: center;
-
-    a {
-        font-size: 0.9rem;
-        color: var(--accent);
-        text-decoration: none;
-    }
+  margin-top: 18px;
+  text-align: center;              
 }
 
-/* ---------- FOOTER DE LA APLICACION ---------- */
+.register-link a {
+  font-size: 0.9rem;
+  color: var(--accent);
+  text-decoration: none;
+}
 
+/* ---------- FOOTER ---------- */
 .footer {
-    text-align: center;
-    color: var(--text-sub);
+  font-size: 14px;
+  text-align: center;              
+  color: var(--text-sub);
+  margin-top: 30px;
 }
