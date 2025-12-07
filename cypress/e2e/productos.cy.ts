@@ -1,7 +1,7 @@
 import { LoginPage } from '../support/pages/login.page';
 import { ProductosPage } from '../support/pages/productos.page';
 
-describe('TableMaster – Productos', () => {
+describe('System-Inventario – Productos', () => {
     const login = new LoginPage();
     const productos = new ProductosPage();
 

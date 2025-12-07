@@ -1,36 +1,53 @@
 <ion-header>
   <ion-toolbar color="primary">
-    <ion-buttons slot="start"><ion-menu-button></ion-menu-button></ion-buttons>
-    <ion-title class="header" data-test="home-title">Inventario – System</ion-title>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title class="header" data-test="home-title">
+      Inventario – System
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <ion-card>
+<ion-content class="ion-padding home-content">
+
+  <ion-card class="dashboard-card">
     <ion-card-header>
-      <ion-card-title>Resumen</ion-card-title>
       <ion-card-subtitle>Estado general</ion-card-subtitle>
+      <ion-card-title>Resumen</ion-card-title>
     </ion-card-header>
+
     <ion-card-content>
-      <ion-grid>
-        <ion-row>
-          <ion-col size="6">
-            <ion-item lines="none">
-              <ion-label>Productos</ion-label>
-              <ion-badge color="primary">{{ totalProductos$ | async }}</ion-badge>
-            </ion-item>
-          </ion-col>
-          <ion-col size="6">
-            <ion-item lines="none">
-              <ion-label>Categorías</ion-label>
-              <ion-badge color="tertiary">{{ totalCategorias$ | async }}</ion-badge>
-            </ion-item>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-      <ion-button expand="block" (click)="irProductos()">Gestionar productos</ion-button>
-      <ion-button expand="block" fill="outline" (click)="irCategorias()">Gestionar categorías</ion-button>
-      <ion-button expand="block" fill="clear" (click)="irHistorial()">Historial de stock</ion-button>
+      <!-- Bloque de tarjetas de métricas -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Productos</div>
+          <div class="stat-value">
+            {{ totalProductos$ | async }}
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-label">Categorías</div>
+          <div class="stat-value">
+            {{ totalCategorias$ | async }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Botones de navegación -->
+      <ion-button expand="block" class="action-btn" (click)="irProductos()">
+        Gestionar productos
+      </ion-button>
+
+      <ion-button expand="block" class="action-btn outline" fill="outline" (click)="irCategorias()">
+        Gestionar categorías
+      </ion-button>
+
+      <ion-button expand="block" class="action-btn clear" fill="clear" (click)="irHistorial()">
+        Historial de stock
+      </ion-button>
     </ion-card-content>
   </ion-card>
+
 </ion-content>
