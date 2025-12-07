@@ -36,9 +36,18 @@ export class AuthService {
    */
   login(credenciales: { correo: string; contrasena: string; }) {
     return this.http.post<UsuarioRespuesta>(
-      `${this.apiUrl}/login`, credenciales
+      `${this.apiUrl}/login`,
+      credenciales
     ).pipe(
-      tap(res => localStorage.setItem('token', res.token))
+      tap(res => {
+        // Guardar token
+        localStorage.setItem('token', res.token);
+  
+        // Guardar expiración, por ejemplo 30 minutos desde ahora
+        const exp = new Date();
+        exp.setMinutes(exp.getMinutes() + 30);
+        localStorage.setItem('token_expiration', exp.toISOString());
+      })
     );
   }
 
@@ -66,8 +75,9 @@ export class AuthService {
    * Elimina el usuario guardado en las preferencias del dispositivo
    */
   async logout(): Promise<void> {
-    await Preferences.remove({ key: 'usuario' });
+    await Preferences.remove({ key: 'usuario' }); // si sigues usando esto para datos del usuario
     localStorage.removeItem('token');
+    localStorage.removeItem('token_expiration');
     this.router.navigate(['/login']);
   }
 

@@ -1,19 +1,29 @@
 import { CanActivateFn, Router, UrlTree } from '@angular/router';
 import { inject } from '@angular/core';
-import { AuthService } from '../services/auth.service';
 
-export const authGuard: CanActivateFn = async (route, state): Promise<boolean | UrlTree> => {
-  const auth = inject(AuthService);
+export const authGuard: CanActivateFn = (route, state): boolean | UrlTree => {
   const router = inject(Router);
 
-  // Esperamos a leer la sesión
-  const usuario = await auth.obtenerUsuario();
+  const token = localStorage.getItem('token');
+  const expirationStr = localStorage.getItem('token_expiration');
 
-  if (!usuario) {
-    // Si no hay sesión, devolvemos la UrlTree de redirección
+  // 1) Si no hay token => a login
+  if (!token) {
     return router.parseUrl('/login');
   }
 
-  // Si hay sesión, permitimos el acceso
+  // 2) Si hay expiración y está en el pasado => limpiar y a login
+  if (expirationStr) {
+    const expiration = new Date(expirationStr);
+    const now = new Date();
+
+    if (expiration <= now) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('token_expiration');
+      return router.parseUrl('/login');
+    }
+  }
+
+  // 3) Todo ok
   return true;
 };
