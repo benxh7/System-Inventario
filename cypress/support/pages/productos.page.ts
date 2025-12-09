@@ -36,15 +36,15 @@ export interface ProductoData {
     }
   
     private inputBuscar() {
-      // filtro de la página, no del modal
-      return cy
-        .get('[data-test="buscar-producto"]')
-        .shadow()
-        .find('input');
+      return cy.get('input[placeholder="Buscar (código/nombre)"]', {
+        includeShadowDom: true,
+        timeout: 10000,
+      });
     }
   
     private filaProducto(nombre: string) {
-      return cy.contains('[data-test="fila-producto"]', nombre);
+      // buscamos el ion-item-sliding que contiene el nombre
+      return cy.contains('ion-item-sliding[data-test="fila-producto"]', nombre);
     }
   
     private btnEditar(nombre: string) {
@@ -130,8 +130,24 @@ export interface ProductoData {
 
   
     eliminarProducto(nombre: string) {
-      this.btnEliminar(nombre).click();
-      cy.contains('ion-button, button', /aceptar|confirmar/i).click({ force: true });
+      // 1) Abrimos el ion-item-sliding hacia el lado "end"
+      this.filaProducto(nombre)
+        .then($row => {
+          const el = $row[0] as any;
+          // llamamos al método open('end') del web component
+          if (el && typeof el.open === 'function') {
+            el.open('end');
+          }
+        });
+    
+      // 2) Ahora que las opciones están visibles, clic al tarro de basura
+      this.filaProducto(nombre)
+        .find('[data-test="btn-eliminar-producto"]')
+        .click({ force: true });
+    
+      // 3) Confirmar en el alert
+      cy.contains('ion-button, button', /eliminar|aceptar/i)
+        .click({ force: true });
     }
   
     ajustarStock(nombre: string, cantidad: number) {

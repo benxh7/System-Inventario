@@ -1,3 +1,4 @@
+// cypress/e2e/productos-validaciones.cy.ts
 import { LoginPage } from '../support/pages/login.page';
 import { ProductosPage } from '../support/pages/productos.page';
 
@@ -10,68 +11,102 @@ describe('System-Inventario – Validaciones de Producto (NC1, NC2)', () => {
     productos.navigate();
   });
 
+  const abrirModalNuevo = () => {
+    cy.get('[data-test="btn-nuevo-producto"]').click();
+    cy.get('ion-modal', { timeout: 10000 }).should('be.visible');
+  };
+
+  const rellenarBasico = (codigo: string, nombre: string) => {
+    cy.get('ion-modal').within(() => {
+      cy.get('ion-input[formControlName="codigo"] input')
+        .clear()
+        .type(codigo);
+
+      cy.get('ion-input[formControlName="nombre"] input')
+        .clear()
+        .type(nombre);
+    });
+  };
+
+  const seleccionarCategoriaChip = (categoria: string) => {
+    cy.get('ion-modal').within(() => {
+      cy.get('[data-test="chip-categoria"]')
+        .contains(categoria)
+        .click();
+    });
+  };
+
+  const escribirPrecio = (valor: string) => {
+    cy.get('ion-modal').within(() => {
+      cy.get('ion-input[formControlName="precio"] input')
+        .clear()
+        .type(valor);
+    });
+  };
+
   it('No permite códigos de producto duplicados (REQ-INV-01.i, NC1)', () => {
-    // Crear primer producto
-    cy.get('[data-test="btn-nuevo-producto"]').click();
-    cy.get('ion-input[formControlName="codigo"] input').type('D001');
-    cy.get('ion-input[formControlName="nombre"] input').type('Producto original');
-    cy.get('[data-test="select-categoria"]').click();
-    cy.contains('ion-select-option', 'Alimentos').click();
-    cy.get('ion-input[formControlName="precio"] input').type('1000');
-    cy.get('[data-test="btn-guardar-producto"]').click();
-  
-    // Intentar crear otro con el mismo código
-    cy.get('[data-test="btn-nuevo-producto"]').click();
-    cy.get('ion-input[formControlName="codigo"] input').type('D001');
-    cy.get('ion-input[formControlName="nombre"] input').type('Producto duplicado');
-    cy.get('[data-test="select-categoria"]').click();
-    cy.contains('ion-select-option', 'Alimentos').click();
-    cy.get('ion-input[formControlName="precio"] input').type('1200');
-    cy.get('[data-test="btn-guardar-producto"]').click();
-  
-    cy.contains('[data-test="error-codigo"]', /código ya existe/i)
+    // ---- 1) Crear primer producto válido ----
+    abrirModalNuevo();
+    rellenarBasico('D001', 'Producto original');
+    seleccionarCategoriaChip('Alimentos');
+    escribirPrecio('1000');
+
+    cy.get('ion-modal [data-test="btn-guardar-producto"]').click();
+    cy.wait(500);
+
+    productos.buscarPorNombre('Producto original');
+    cy.contains('[data-test="fila-producto"]', 'Producto original')
       .should('be.visible');
+
+    // ---- 2) Intentar crear otro con el mismo código ----
+    abrirModalNuevo();
+    rellenarBasico('D001', 'Producto duplicado');
+    seleccionarCategoriaChip('Alimentos');
+    escribirPrecio('1200');
+
+    cy.get('ion-modal [data-test="btn-guardar-producto"]').click();
+    cy.wait(500);
+
+    // ASSERT: no hay dos filas con el mismo código
+    productos.buscarPorNombre('D001');
+
+    cy.get('[data-test="fila-producto"]')
+      .filter(':contains("D001")')
+      .should('have.length', 1);
   });
 
   it('Rechaza código de producto que no cumple patrón inicial + 3 dígitos (NC1)', () => {
-    cy.get('[data-test="btn-nuevo-producto"]').click();
-    cy.get('ion-input[formControlName="codigo"] input').type('1234');
-    cy.get('ion-input[formControlName="nombre"] input').type('Producto inválido');
-    cy.get('[data-test="select-categoria"]').click();
-    cy.contains('ion-select-option', 'Alimentos').click();
-    cy.get('ion-input[formControlName="precio"] input').type('1000');
+    abrirModalNuevo();
+    rellenarBasico('1234', 'Producto inválido');
+    seleccionarCategoriaChip('Alimentos');
+    escribirPrecio('1000');
 
-    cy.get('[data-test="btn-guardar-producto"]').click();
-
-    cy.contains('[data-test="error-codigo"]', /código debe seguir el patrón/i)
-      .should('be.visible');
+    // El botón debe permanecer deshabilitado porque el form es inválido
+    cy.get('ion-modal [data-test="btn-guardar-producto"]')
+      .should('be.disabled');
   });
 
   it('Requiere categoría obligatoria (REQ-INV-01.h)', () => {
-    cy.get('[data-test="btn-nuevo-producto"]').click();
-    cy.get('ion-input[formControlName="codigo"] input').type('B001');
-    cy.get('ion-input[formControlName="nombre"] input').type('Producto sin categoría');
-    // No se selecciona categoría
-    cy.get('ion-input[formControlName="precio"] input').type('2000');
+    abrirModalNuevo();
+    rellenarBasico('B001', 'Producto sin categoría');
+    // No seleccionamos categoría
+    escribirPrecio('2000');
 
-    cy.get('[data-test="btn-guardar-producto"]').click();
-
-    cy.contains('[data-test="error-categoria"]', /categoría es obligatoria/i)
-      .should('be.visible');
+    // Form inválido ⇒ botón deshabilitado
+    cy.get('ion-modal [data-test="btn-guardar-producto"]')
+      .should('be.disabled');
   });
 
   it('El precio solo acepta números enteros (NC2, REQ-INV-01.k)', () => {
-    cy.get('[data-test="btn-nuevo-producto"]').click();
-    cy.get('ion-input[formControlName="codigo"] input').type('C001');
-    cy.get('ion-input[formControlName="nombre"] input').type('Producto con precio inválido');
-    cy.get('[data-test="select-categoria"]').click();
-    cy.contains('ion-select-option', 'Alimentos').click();
+    abrirModalNuevo();
+    rellenarBasico('C001', 'Producto con precio inválido');
+    seleccionarCategoriaChip('Alimentos');
 
     // Intentar ingresar un decimal
-    cy.get('ion-input[formControlName="precio"] input').type('1000.50');
-    cy.get('[data-test="btn-guardar-producto"]').click();
+    escribirPrecio('1000.50');
 
-    cy.contains('[data-test="error-precio"]', /precio debe ser un número entero/i)
-      .should('be.visible');
+    // Form inválido ⇒ botón deshabilitado
+    cy.get('ion-modal [data-test="btn-guardar-producto"]')
+      .should('be.disabled');
   });
 });
