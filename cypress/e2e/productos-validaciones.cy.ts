@@ -44,6 +44,15 @@ describe('System-Inventario – Validaciones de Producto (NC1, NC2)', () => {
     });
   };
 
+  // Helper para comprobar que el botón de guardar está deshabilitado en Ionic
+  const assertBotonGuardarDeshabilitado = () => {
+    cy.get('ion-modal [data-test="btn-guardar-producto"]')
+      .should('have.class', 'button-disabled')
+      .and('have.attr', 'aria-disabled', 'true');
+    // Opcionalmente, si Ionic refleja el atributo disabled:
+    // .and('have.attr', 'disabled');
+  };
+
   it('No permite códigos de producto duplicados (REQ-INV-01.i, NC1)', () => {
     // ---- 1) Crear primer producto válido ----
     abrirModalNuevo();
@@ -82,8 +91,7 @@ describe('System-Inventario – Validaciones de Producto (NC1, NC2)', () => {
     escribirPrecio('1000');
 
     // El botón debe permanecer deshabilitado porque el form es inválido
-    cy.get('ion-modal [data-test="btn-guardar-producto"]')
-      .should('be.disabled');
+    assertBotonGuardarDeshabilitado();
   });
 
   it('Requiere categoría obligatoria (REQ-INV-01.h)', () => {
@@ -93,8 +101,7 @@ describe('System-Inventario – Validaciones de Producto (NC1, NC2)', () => {
     escribirPrecio('2000');
 
     // Form inválido ⇒ botón deshabilitado
-    cy.get('ion-modal [data-test="btn-guardar-producto"]')
-      .should('be.disabled');
+    assertBotonGuardarDeshabilitado();
   });
 
   it('El precio solo acepta números enteros (NC2, REQ-INV-01.k)', () => {
@@ -106,7 +113,6 @@ describe('System-Inventario – Validaciones de Producto (NC1, NC2)', () => {
     escribirPrecio('1000.50');
 
     // Form inválido ⇒ botón deshabilitado
-    cy.get('ion-modal [data-test="btn-guardar-producto"]')
-      .should('be.disabled');
+    assertBotonGuardarDeshabilitado();
   });
 });
