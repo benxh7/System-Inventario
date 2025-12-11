@@ -1,0 +1,130 @@
+/* ============================
+   AJUSTE GLOBAL DEL CONTENEDOR
+============================ */
+.contenido-historial {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.filtros-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ============================
+   TITULOS ALINEADOS AL FORMULARIO
+============================ */
+.titulo-seccion {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 4px 0 6px 0;
+  padding-left: 2px;
+  color: #333;
+}
+
+/* ============================
+   CHIPS DE CATEGORÍA
+============================ */
+.chip-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+ion-chip {
+  --background: #efefef;
+  --color: #333;
+  cursor: pointer;
+}
+
+ion-chip[color="primary"] {
+  --background: var(--ion-color-primary);
+  --color: white;
+}
+
+/* ============================
+   BUSCADOR Y LISTA FILTRADA
+============================ */
+/* Lista compacta de productos */
+.lista-productos-compacta {
+  margin-top: 4px;
+  border: 1px solid #dcdcdc80;
+  border-radius: 8px;
+  max-height: 220px;          
+  overflow-y: auto;
+  background: #fafafa;
+
+  ion-item {
+    --padding-start: 10px;
+    --inner-padding-end: 10px;
+    min-height: 48px;        
+    font-size: 0.92rem;
+  }
+
+  ion-item:not(:last-child) {
+    border-bottom: 1px solid #e2e2e2;
+  }
+
+  ion-item:hover {
+    background: #ececec;
+  }
+
+  .codigo {
+    font-size: 0.75rem;
+    opacity: 0.7;
+    margin: 0;
+  }
+}
+
+
+/* ============================
+   CARD DEL PRODUCTO
+============================ */
+ion-card {
+  margin: 0; /* evita espacio entre card y lista */
+  border-radius: 12px;
+  box-shadow: 0 2px 8px #00000020;
+}
+
+ion-card-header {
+  padding-bottom: 4px;
+}
+
+ion-card-content {
+  padding-top: 0;
+}
+
+/* ============================
+   HISTORIAL — PEGADO AL CARD
+============================ */
+ion-list {
+  margin-top: -6px !important; /* junta la lista con la card */
+  
+  overflow: hidden;
+  box-shadow: 0 2px 8px #00000020;
+}
+
+ion-item {
+  --padding-start: 12px;
+
+  h2 {
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  ion-icon {
+    font-size: 1.4rem;
+    color: var(--ion-color-primary);
+  }
+}
+
+/* ============================
+   MENSAJE CUANDO NO HAY PRODUCTO
+============================ */
+ion-item[role="alert"], 
+ion-item[ng-reflect-ng-if="true"] {
+  text-align: center;
+  opacity: 0.7;
+}

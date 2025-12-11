@@ -1,122 +1,125 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { ModalController } from '@ionic/angular';
-import { FormBuilder } from '@angular/forms';
-import { combineLatest, map, startWith, switchMap, of } from 'rxjs';
-
-import { ProductoService, Producto, StockHistoryRow } from '../../services/producto.service';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { ProductoService, Producto } from '../../services/producto.service';
 import { CategoriaService, Categoria } from '../../services/categoria.service';
-import { AjusteStockComponent } from '../../components/ajuste-stock.component';
+import { Observable, switchMap, of } from 'rxjs';
 
 @Component({
   selector: 'app-historial',
   templateUrl: './historial.page.html',
   styleUrls: ['./historial.page.scss'],
-  standalone: false
+  standalone: false,
 })
 export class HistorialPage implements OnInit {
+
   private prodSrv = inject(ProductoService);
   private catSrv = inject(CategoriaService);
-  private modal = inject(ModalController);
   private fb = inject(FormBuilder);
 
-  // filtros: producto, búsqueda por motivo, rango fechas (simple)
-  filtroForm = this.fb.group({
-    producto_id: [null as number | null],
-    categoria_id: [0],
-    q: [''],
+  categorias$!: Observable<Categoria[]>;
+  productos$!: Observable<Producto[]>;
+
+  // Productos filtrados según búsqueda por input
+  productosFiltrados: Producto[] = [];
+
+  // Producto seleccionado para mostrar su resumen
+  seleccionado: Producto | null = null;
+
+  // Historial observable
+  historial$!: Observable<any[]>;
+
+  filtroForm: FormGroup = this.fb.group({
+    categoria_id: [null],
+    buscarProducto: [''],
+    producto_id: [null],
     desde: [''],
     hasta: [''],
   });
 
-  // cat + productos para selectores
-  categorias$ = this.catSrv.listar();
-  productos$ = combineLatest([
-    this.categorias$,
-    this.filtroForm.valueChanges.pipe(startWith(this.filtroForm.value))
-  ]).pipe(
-    switchMap(([_, f]) => this.prodSrv.listar({
-      categoria_id: f?.categoria_id && f.categoria_id > 0 ? f.categoria_id : undefined
-    })),
-  );
+  ngOnInit() {
 
-  // historial del producto seleccionado con filtros locales
-historial$ = this.filtroForm.valueChanges.pipe(
-  startWith(this.filtroForm.value),
-  switchMap(f => {
-    const pid = f?.producto_id ?? null;
-    return pid ? this.prodSrv.historial(pid) : of<StockHistoryRow[]>([]);
-  }),
-  map((rows: StockHistoryRow[]) => {
-    const f = this.filtroForm.value;
-    let out = rows;
-  
-    // --- Texto en motivo (min 2 chars) ---
-    const q = (f?.q ?? '').toString().trim().toLowerCase();
-    if (q.length >= 2) {
-      out = out.filter(r => (r.motivo || '').toLowerCase().includes(q));
-    }
-  
-    // --- Filtrado por fecha SIN Date() (evita TZ) ---
-    // Inputs de tipo date nos dan 'YYYY-MM-DD' o ''.
-    const dStr = (f?.desde || '').toString().slice(0, 10); // '' o 'YYYY-MM-DD'
-    const hStr = (f?.hasta || '').toString().slice(0, 10);
-  
-    out = out.filter(r => {
-      const rDay = r.fecha.slice(0, 10); // 'YYYY-MM-DD' del backend
-      if (dStr && rDay < dStr) return false;
-      if (hStr && rDay > hStr) return false;
-      return true;
-    });
-  
-    // Orden descendente por fecha/hora
-    return out.slice().sort((a, b) => (a.fecha < b.fecha ? 1 : -1));
-  })
-);
+    // Cargar categorías
+    this.categorias$ = this.catSrv.listar();
 
+    // Cargar productos filtrados por categoría
+    this.productos$ = this.filtroForm.get('categoria_id')!.valueChanges.pipe(
+      switchMap(catId => {
+        if (!catId) return this.prodSrv.listar();
+        return this.prodSrv.listar({ categoria_id: catId });
+      })
+    );
 
-  // para mostrar stock del seleccionado
-  seleccionado?: Producto | null;
+    // Al cambiar producto → cargar historial
+    this.historial$ = this.filtroForm.get('producto_id')!.valueChanges.pipe(
+      switchMap(productoId => {
+        if (!productoId) return of([]);
+        return this.prodSrv.historial(productoId);
+      })
+    );
 
-  ngOnInit(): void {
-    // Mantener seleccionado y, si no hay, autoseleccionar primero
-    combineLatest([
-      this.productos$,
-      this.filtroForm.valueChanges.pipe(startWith(this.filtroForm.value))
-    ]).subscribe(([list, f]) => {
-      const pid = f?.producto_id ?? null;
-  
-      // si no hay producto seleccionado y hay lista, seleccionar el primero
-      if (!pid && list.length > 0) {
-        this.filtroForm.patchValue({ producto_id: list[0].id }, { emitEvent: true });
-      }
-  
-      // guardar referencia del seleccionado (para la tarjeta de resumen)
-      this.seleccionado = pid ? list.find(p => p.id === pid) ?? null : null;
+    // Cuando cargan los productos, inicializar filtrados
+    this.productos$.subscribe(list => {
+      this.productosFiltrados = list;
     });
   }
 
-  /** abre modal para ajuste del producto elegido */
-  async abrirAjuste() {
-    const pid = this.filtroForm.value.producto_id;
-    if (!pid) return;
-
-    const modal = await this.modal.create({
-      component: AjusteStockComponent,
-      componentProps: { producto_id: pid }
-    });
-    modal.onDidDismiss().then(() => {
-      // fuerza re-lectura de historial volviendo a emitir el form value
-      this.filtroForm.updateValueAndValidity({ emitEvent: true });
-    });
-    await modal.present();
-  }
-
-  limpiarFiltros() {
+  // ----------------------------
+  //   MANEJO DE CATEGORÍAS
+  // ----------------------------
+    seleccionarCategoria(id: number | null) {
     this.filtroForm.patchValue({
-      q: '',
-      desde: null,
-      hasta: null
-      // si tienes categoria_id o producto_id, decide si también los limpias
-    }, { emitEvent: true });
+      categoria_id: id,
+      producto_id: null,
+    });
+
+    this.seleccionado = null;
+
+    this.productos$.subscribe(lista => {
+      this.productosFiltrados = lista;
+    });
+  }
+
+
+  // ----------------------------
+  //   FILTRAR PRODUCTOS POR TEXTO
+  // ----------------------------
+  filtrarProductos() {
+    const texto = this.filtroForm.value.buscarProducto?.toLowerCase() ?? '';
+
+    this.productos$.subscribe(lista => {
+      this.productosFiltrados = lista.filter(p =>
+        p.nombre.toLowerCase().includes(texto) ||
+        p.codigo.toLowerCase().includes(texto)
+      );
+    });
+  }
+
+  // ----------------------------
+  //   SELECCIONAR PRODUCTO
+  // ----------------------------
+  seleccionarProducto(p: Producto) {
+    this.filtroForm.patchValue({ producto_id: p.id });
+    this.seleccionado = p;
+    this.productosFiltrados = [];   // Oculta la lista luego
+  }
+
+
+  // ----------------------------
+  //   LIMPIAR FILTROS
+  // ----------------------------
+  limpiarFiltros() {
+    this.filtroForm.reset({
+      categoria_id: null,
+      buscarProducto: '',
+      producto_id: null,
+      desde: '',
+      hasta: ''
+    });
+
+    this.seleccionado = null;
+
+    this.productos$.subscribe(list => {
+      this.productosFiltrados = list;
+    });
   }
 }

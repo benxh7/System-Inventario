@@ -8,7 +8,8 @@
 <ion-content class="products-content ion-padding" fullscreen>
 
   <!-- Filtros -->
-  <form [formGroup]="filtroForm" class="ion-padding">
+  <div class="filtros-container">
+  <form [formGroup]="filtroForm">
     <ion-item>
       <ion-input
         placeholder="Buscar (código/nombre)"
@@ -31,46 +32,64 @@
       </ion-select>
     </ion-item>
   </form>
+  </div>
 
+  <!-- Lista de productos -->
   <ion-list lines="none">
-    <ion-item-sliding *ngFor="let p of (productos$ | async)" data-test="fila-producto">
-      <ion-item detail="false">
-        <ion-thumbnail slot="start" *ngIf="p.imagen"><img [src]="p.imagen" /></ion-thumbnail>
-        <ion-label>
-          <h2 class="name">
-            {{ p.nombre }} <ion-note>({{ p.codigo }})</ion-note>
-          </h2>
-          <p class="price">Precio: ${{ p.precio | number:'1.0-0' }}</p>
-          <p class="stock" data-test="producto-stock">
-            Stock:
-            <ng-container *ngIf="!p.ilimitado; else inf">{{ p.stock }}</ng-container>
-            <ng-template #inf>∞</ng-template>
-          </p>
-        </ion-label>
-        <ion-button
-          slot="end"
-          fill="clear"
-          (click)="editar(p)"
-          data-test="btn-editar-producto"
-        >
-          <ion-icon name="create-outline"></ion-icon>
-        </ion-button>
-      </ion-item>
-      <ion-item-options side="end">
-        <ion-item-option
-          color="danger"
-          (click)="eliminar(p)"
-          data-test="btn-eliminar-producto"
-        >
-          <ion-icon slot="icon-only" name="trash"></ion-icon>
-        </ion-item-option>
-      </ion-item-options>
-    </ion-item-sliding>
+    <ion-item *ngFor="let p of (productos$ | async)" data-test="fila-producto">
+      
+      <ion-thumbnail slot="start" *ngIf="p.imagen">
+        <img [src]="p.imagen" />
+      </ion-thumbnail>
+
+      <ion-label>
+        <h2 class="name" data-test="producto-nombre">
+          {{ p.nombre }} <ion-note>({{ p.codigo }})</ion-note>
+        </h2>
+
+
+        <p class="price">Precio: ${{ p.precio | number:'1.0-0' }}</p>
+
+        <p class="stock" data-test="producto-stock">
+          Stock:
+          <ng-container *ngIf="!p.ilimitado; else inf">{{ p.stock }}</ng-container>
+          <ng-template #inf>∞</ng-template>
+        </p>
+
+        <!-- Botones visibles (Editar / Ajustar / Eliminar)  -->
+        <div class="acciones-container">
+          
+          <!-- Editar -->
+          <ion-button fill="clear" color="success" (click)="editar(p)" data-test="btn-editar-producto">
+            <ion-icon name="create-outline"></ion-icon>
+            <ion-label>Editar</ion-label>
+          </ion-button>
+
+          <!-- Ajustar Stock -->
+          <ion-button fill="clear" color="warning" (click)="abrirAjusteStock(p)" data-test="btn-ajustar-stock">
+            <ion-icon name="cube-outline"></ion-icon>
+            <ion-label>Ajustar Stock</ion-label>
+          </ion-button>
+
+          <!-- Eliminar -->
+          <ion-button fill="clear" color="danger" (click)="eliminar(p)" data-test="btn-eliminar-producto">
+            <ion-icon name="trash-outline"></ion-icon>
+            <ion-label>Eliminar</ion-label>
+          </ion-button>
+
+        </div>
+        
+
+      </ion-label>
+
+    </ion-item>
   </ion-list>
 
+  <!-- Botón agregar producto -->
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
     <ion-fab-button (click)="agregar()" data-test="btn-nuevo-producto">
       <ion-icon name="add"></ion-icon>
     </ion-fab-button>
   </ion-fab>
+
 </ion-content>

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { IonicModule, ModalController, ToastController } from '@ionic/angular';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ProductoService } from '../services/producto.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-ajuste-stock',
@@ -57,7 +58,7 @@ export class AjusteStockComponent {
   @Input() producto_id!: number;
 
   form = this.fb.group({
-    tipo: ['entrada', Validators.required],      // entrada | salida
+    tipo: ['entrada', Validators.required],
     cantidad: [1, [Validators.required, Validators.min(1)]],
     motivo: [''],
   });
@@ -65,17 +66,35 @@ export class AjusteStockComponent {
   close() { this.modal.dismiss(); }
 
   async save() {
+    console.log('DEBUG producto_id:', this.producto_id);
+    if (!this.producto_id) {
+      (await this.toast.create({
+        message: 'Error: producto no definido',
+        duration: 2000,
+        color: 'danger'
+      })).present();
+      return;
+    }
+
     const { tipo, cantidad, motivo } = this.form.value as any;
     const delta = tipo === 'entrada' ? +cantidad : -cantidad;
 
     try {
-      await this.prodSrv.ajustarStock(this.producto_id, delta, motivo).toPromise();
-      (await this.toast.create({ message: 'Ajuste aplicado', duration: 1200 })).present();
+      // FIX: usar firstValueFrom
+      await firstValueFrom(
+        this.prodSrv.ajustarStock(this.producto_id, delta, motivo)
+      );
+
+      (await this.toast.create({ message: 'Ajuste aplicado', duration: 1200 }))
+        .present();
+
       this.modal.dismiss(true);
+
     } catch (e: any) {
       (await this.toast.create({
         message: e?.error?.detail || 'No se pudo aplicar el ajuste',
-        duration: 2000, color: 'danger'
+        duration: 2000,
+        color: 'danger'
       })).present();
     }
   }

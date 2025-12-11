@@ -5,32 +5,64 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding" fullscreen>
-  <form [formGroup]="filtroForm" class="ion-margin-bottom">
-    <ion-item>
-      <ion-label position="stacked">Categoría</ion-label>
-      <ion-select interface="popover" formControlName="categoria_id">
-        <ion-select-option [value]="0">Todas</ion-select-option>
-        <ion-select-option *ngFor="let c of (categorias$ | async)" [value]="c.id">
-          {{ c.nombre }}
-        </ion-select-option>
-      </ion-select>
-    </ion-item>
+<ion-content class="ion-padding contenido-historial" fullscreen>
 
-    <ion-item>
+  <!-- FILTROS -->
+  <form [formGroup]="filtroForm" class="filtros-container">
+
+    <!-- CATEGORÍAS COMO CHIPS -->
+    <h2 class="titulo-seccion">Categorías</h2>
+    <div class="chip-container">
+      <ion-chip 
+        outline 
+        [color]="filtroForm.value.categoria_id === null ? 'primary' : 'medium'"
+        (click)="seleccionarCategoria(null)"
+        data-test="chip-cat-todas"
+      >
+        <ion-label>Todas</ion-label>
+      </ion-chip>
+
+      <ion-chip
+        *ngFor="let c of (categorias$ | async)"
+        [outline]="filtroForm.value.categoria_id !== c.id"
+        [color]="filtroForm.value.categoria_id === c.id ? 'primary' : 'medium'"
+        (click)="seleccionarCategoria(c.id)"
+        data-test="chip-categoria"
+      >
+        <ion-label>{{ c.nombre }}</ion-label>
+      </ion-chip>
+    </div>
+
+    <!-- BUSCAR PRODUCTO -->
+    <ion-item class="ion-margin-top">
       <ion-label position="stacked">Producto</ion-label>
-      <ion-select interface="popover" formControlName="producto_id" placeholder="Selecciona...">
-        <ion-select-option *ngFor="let p of (productos$ | async)" [value]="p.id">
-          {{ p.nombre }} ({{p.codigo}})
-        </ion-select-option>
-      </ion-select>
+      <ion-input
+        placeholder="Buscar producto…"
+        formControlName="buscarProducto"
+        (ionInput)="filtrarProductos()"
+        data-test="buscar-producto"
+      ></ion-input>
     </ion-item>
 
-    <ion-item>
-      <ion-label position="stacked">Buscar por motivo</ion-label>
-      <ion-input formControlName="q" placeholder="Compra, rotura, inventario..."></ion-input>
-    </ion-item>
-
+    <!-- LISTADO COMPACTO DE PRODUCTOS SEGÚN CATEGORÍA -->
+      <ion-list 
+        class="lista-productos-compacta" 
+        *ngIf="productosFiltrados.length > 0"
+      >
+        <ion-item 
+          button 
+          *ngFor="let p of productosFiltrados"
+          (click)="seleccionarProducto(p)"
+          data-test="producto-list-item"
+        >
+          <ion-label>
+            <strong>{{ p.nombre }}</strong>
+            <p class="codigo">{{ p.codigo }}</p>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+  
+    <!-- FECHAS -->
     <ion-item>
       <ion-label position="stacked">Desde</ion-label>
       <ion-input type="date" formControlName="desde"></ion-input>
@@ -46,30 +78,32 @@
     </ion-button>
   </form>
 
-  <!-- Resumen del producto -->
+  <!-- RESUMEN DEL PRODUCTO -->
   <ion-card *ngIf="seleccionado">
     <ion-card-header>
-      <ion-card-title>{{ seleccionado.nombre }} <ion-note>({{seleccionado.codigo}})</ion-note></ion-card-title>
-      <ion-card-subtitle>Categoria ID: {{ seleccionado.categoria_id }}</ion-card-subtitle>
+      <ion-card-title>
+        {{ seleccionado.nombre }} 
+        <ion-note>({{ seleccionado.codigo }})</ion-note>
+      </ion-card-title>
+      <ion-card-subtitle>Categoría ID: {{ seleccionado.categoria_id }}</ion-card-subtitle>
     </ion-card-header>
     <ion-card-content>
       <p *ngIf="seleccionado.ilimitado; else stockTpl">Stock: ∞</p>
       <ng-template #stockTpl><p>Stock: {{ seleccionado.stock }}</p></ng-template>
-
-      <ion-button expand="block" (click)="abrirAjuste()" [disabled]="seleccionado.ilimitado">
-        Ajustar stock
-      </ion-button>
     </ion-card-content>
   </ion-card>
 
-  <!-- Lista de movimientos -->
+  <!-- HISTORIAL -->
   <ion-list *ngIf="(historial$ | async) as hist; else selProdPrimero" lines="full">
     <ion-item *ngIf="hist.length === 0">
       <ion-label>No hay movimientos para los filtros actuales.</ion-label>
     </ion-item>
 
-    <ion-item *ngFor="let r of hist">
-      <ion-icon [name]="r.delta >= 0 ? 'add-circle-outline' : 'remove-circle-outline'" slot="start"></ion-icon>
+    <ion-item *ngFor="let r of hist" data-test="historial-item">
+      <ion-icon 
+        [name]="r.delta >= 0 ? 'add-circle-outline' : 'remove-circle-outline'" 
+        slot="start"
+      ></ion-icon>
       <ion-label>
         <h2>
           <b>{{ r.delta >= 0 ? '+' : ''}}{{ r.delta }}</b>
@@ -85,4 +119,5 @@
       <ion-label>Selecciona un producto para ver su historial.</ion-label>
     </ion-item>
   </ng-template>
+
 </ion-content>

@@ -7,18 +7,16 @@ describe('System-Inventario – Gestión de Productos', () => {
 
   const baseProducto: ProductoData = {
     codigo: 'A001',
-    nombre: 'Azucar 1kg',
+    nombre: 'Azúcar 1kg',
     categoria: 'Alimentos',
     precio: 1500,
   };
 
-  // Opcional: si quieres limpiar al principio de TODO
   before(() => {
     cy.clearLocalStorage();
     cy.clearCookies();
   });
 
-  // Antes de CADA test: login + ir a /productos
   beforeEach(() => {
     login.login('benja@gmail.com', '123456');
     productos.navigate();
@@ -28,7 +26,8 @@ describe('System-Inventario – Gestión de Productos', () => {
     productos.crearProducto(baseProducto);
 
     productos.buscarPorNombre(baseProducto.nombre);
-    cy.contains('[data-test="fila-producto"]', baseProducto.nombre)
+
+    cy.contains('ion-item[data-test="fila-producto"]', baseProducto.nombre)
       .should('be.visible');
   });
 
@@ -38,14 +37,17 @@ describe('System-Inventario – Gestión de Productos', () => {
     productos.buscarPorNombre(baseProducto.nombre);
     productos.editarNombreProducto(baseProducto.nombre, nuevoNombre);
 
+    // Espera para que se actualice la lista
+    cy.wait(400);
+
     productos.buscarPorNombre(nuevoNombre);
-    cy.contains('[data-test="fila-producto"]', nuevoNombre)
+    cy.contains('ion-item[data-test="fila-producto"]', nuevoNombre)
       .should('be.visible');
   });
 
   it('Busca un producto por nombre (REQ-INV-04 Buscar producto)', () => {
     productos.buscarPorNombre('Azúcar');
-    cy.contains('[data-test="fila-producto"]', 'Azúcar')
+    cy.contains('ion-item[data-test="fila-producto"]', 'Azúcar')
       .should('be.visible');
   });
 
@@ -53,10 +55,27 @@ describe('System-Inventario – Gestión de Productos', () => {
     const nombre = 'Azúcar granulada 1kg';
 
     productos.buscarPorNombre(nombre);
-    productos.eliminarProducto(nombre);
 
+    cy.contains('ion-item[data-test="fila-producto"]', nombre)
+      .find('[data-test="btn-eliminar-producto"]')
+      .click({ force: true });
+
+    // Esperar que el alert aparezca
+    cy.get('ion-alert').should('be.visible');
+
+    // Clic botón eliminar del alert 
+    cy.get('ion-alert .alert-button-role-destructive')
+      .click({ force: true }); 
+
+    // Esperar a que desaparezca
+    cy.get('ion-alert').should('not.exist');
+
+    cy.wait(300);
+
+    // Verificar que ya no existe el producto
     productos.buscarPorNombre(nombre);
-    cy.contains('[data-test="fila-producto"]', nombre)
-      .should('not.exist');
+    cy.contains('ion-item[data-test="fila-producto"]', nombre).should('not.exist');
   });
+
+
 });
