@@ -1,5 +1,65 @@
-ion-item {
-    --padding-start: 12px;
-    --inner-padding-end: 8px;
+// Estilos generales para el contenido
+ion-content {
+  --background: var(--app-bg);
+  padding: 16px;
 }
-  
+
+// Input de búsqueda
+ion-item.search-item {
+  border-radius: 40px 40px;  
+  background-color: var(--card-bg);
+  margin-bottom: 16px;
+}
+
+// Lista de categorías
+ion-item-sliding.categoria-item {
+  margin-bottom: 12px;
+
+  ion-item {
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    --inner-padding-start: 16px;
+    --inner-padding-end: 16px;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: #222;
+    }
+
+    ion-icon {
+      font-size: 24px;
+    }
+  }
+
+  ion-item-options {
+    ion-item-option {
+      border-radius: 0 12px 12px 0;
+    }
+  }
+}
+
+// Botón flotante agregar
+ion-fab-button {
+  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+// Ajustes de íconos
+ion-icon[name="create-outline"] {
+  font-size: 20px;
+}
+ion-icon[name="trash-outline"] {
+  font-size: 20px;
+}
+.footer {
+  font-size: 14px;
+  text-align: center;              
+  color: var(--text-sub);
+  margin-top: 30px;
+}

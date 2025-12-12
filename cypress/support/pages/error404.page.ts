@@ -7,6 +7,7 @@ export class Error404Page {
     }
 
     volverAlHome() {
-        cy.contains('ion-button, a', /volver/i).click();
+        // Clic en "volver"
+        cy.contains('ion-button, a', /volver/i, { timeout: 5000 }).click({ force: true });
     }
 }

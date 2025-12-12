@@ -37,13 +37,8 @@
 @import "@ionic/angular/css/palettes/dark.system.css";
 
 ion-content.home-content::part(scroll) {
-    /* color de la taza  */
-    background-color: var(--app-bg);
   
-    /* imagen de taza en el centro */
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%2386E3C3' fill-opacity='0.2' viewBox='0 0 24 24'%3E%3Cpath d='M18 8h1a3 3 0 0 1 0 6h-1v1a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8h15Zm1 4a1 1 0 0 0 0-2h-1v2h1ZM6 2h2v3H6V2Zm4 0h2v3h-2V2Zm4 0h2v3h-2V2Z'/%3E%3C/svg%3E");
-  
-    background-repeat: no-repeat;
+    background-color: var(--app-bg);        
     background-position: center center;
     background-size: 280px;
 }

@@ -1,10 +1,11 @@
 /* ============================
    AJUSTE GLOBAL DEL CONTENEDOR
 ============================ */
-.contenido-historial {
+.contenido-historial {  
   display: flex;
   flex-direction: column;
   gap: 12px;
+  
 }
 
 .filtros-container {
@@ -100,7 +101,7 @@ ion-card-content {
    HISTORIAL — PEGADO AL CARD
 ============================ */
 ion-list {
-  margin-top: -6px !important; /* junta la lista con la card */
+  margin-top: -6px;
   
   overflow: hidden;
   box-shadow: 0 2px 8px #00000020;
@@ -116,7 +117,7 @@ ion-item {
 
   ion-icon {
     font-size: 1.4rem;
-    color: var(--ion-color-primary);
+    color: var(--app-bg--ion-color-warning);
   }
 }
 
@@ -127,4 +128,10 @@ ion-item[role="alert"],
 ion-item[ng-reflect-ng-if="true"] {
   text-align: center;
   opacity: 0.7;
+}
+.footer {
+  font-size: 14px;
+  text-align: center;              
+  color: var(--text-sub);
+  margin-top: 30px;
 }

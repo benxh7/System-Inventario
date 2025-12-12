@@ -68,25 +68,25 @@ describe('System-Inventario – Gestión de Stock e Historial (NC4)', () => {
     cy.wait(400);
 
     
-    //   7) Elegir categoría con chip
+    //Elegir categoría con chip
 
     cy.contains('[data-test="chip-categoria"]', prod.categoria, {
       timeout: 4000,
     }).click();
 
   
-    //  Seleccionar producto en lista compacta
+    //Seleccionar producto en lista compacta
 
     cy.contains('[data-test="producto-list-item"]', prod.nombre, {
       timeout: 5000,
     }).click();
 
-    // Confirmar que se cargó el card
+    //Confirmar que se cargó el card
     cy.contains('ion-card-title', prod.nombre, { timeout: 4000 })
       .should('exist');
 
  
-    // Validar movimiento +10
+    //Validar movimiento +10
  
     cy.get('[data-test="historial-item"] h2')
       .first()
